@@ -45,7 +45,9 @@
 			var StatusText = document.getElementById("StatusText");
 			btn.disabled = false;
 
-			var result = JSON.parse(this.responseText);
+			var result = { log: this.responseText, status : false };
+			try { result = JSON.parse(this.responseText); }
+			catch(e) {}
 
 			if(this.status == 200 && result.status)
 			{
@@ -84,7 +86,7 @@
 			var formdata = new FormData(form);
 			var request = new XMLHttpRequest();
 
-			request.open("POST", "/cgi-bin/rim2vtt.php", true);
+			request.open("POST", "/rim2vtt/cgi-bin/rim2vtt.php", true);
 			request.upload.onprogress = updateProgress;
 			request.onload = onUploadCompleted;
 			request.onerror = onUploadError;
