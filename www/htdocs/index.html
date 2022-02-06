@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>rim2vtt</title>
+	<link rel="stylesheet" href="stylesheet.css">
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+
+	<script>
+		function updateProgress(e)
+		{
+			var StatusText = document.getElementById("StatusText");
+			var percent = (e.loaded / e.total * 100).toFixed(1);
+
+			if(percent < 100)
+			{
+				StatusText.innerHTML = "SENDING DATA... " + percent + "%";
+			}
+			else
+			{
+				StatusText.innerHTML = "PROCESSING...";
+			}
+		}
+
+		function onUploadCompleted()
+		{
+			var btn = document.getElementById("SubmitButton");
+			var StatusText = document.getElementById("StatusText");
+			btn.disabled = false;
+
+			if(this.status == 200)
+			{
+				StatusText.innerHTML = "COMPLETED SUCCESSFULLY";
+			}
+			else
+			{
+				StatusText.innerHTML = "ERROR (code=" + this.status + ")<br/><pre>" + this.responseText + "</pre>";
+			}
+		}
+
+		function onUploadError()
+		{
+			var btn = document.getElementById("SubmitButton");
+			var StatusText = document.getElementById("StatusText");
+			btn.disabled = false;
+			StatusText.innerHTML = "ERROR (code=" + this.status + ")<br/><pre>" + this.responseText + "</pre>";
+		}
+
+		function sendForm()
+		{
+			var form = document.getElementById("SubmitFilesForm");
+			var btn = document.getElementById("SubmitButton");
+			var formdata = new FormData(form);
+			var request = new XMLHttpRequest();
+
+			request.open("POST", "/cgi-bin/rim2vtt.php", true);
+			request.upload.onprogress = updateProgress;
+			request.onload = onUploadCompleted;
+			request.onerror = onUploadError;
+			btn.disabled = true;
+			request.send(formdata);
+		}
+	</script>
+</head>
+<body>
+		<table>
+			<form enctype="multipart/form-data" id="SubmitFilesForm">
+				<tr><td><h3>Savegame (*.rws):</h3></td><td><input width='100%' type="file" name="savegame" accept="text/xml, application/xml" /></td></tr>
+			</form>
+			<tr><td><h3>Image (*.png, *.jpg):</h3></td><td><input width='100%' type="file" name="image" accept="image/png, image/jpeg"/></td></tr> <tr><td></td><td><button id="SubmitButton" type="button" onclick="sendForm()">Submit</button><div><h3>Upload Status: <span id="StatusText">idle</span></h3></div></td></tr>
+		</table>
+</body>
+</html>
